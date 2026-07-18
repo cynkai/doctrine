@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DOCTRINE · 교리 — Every order becomes a doctrine</title>
+  <link rel="stylesheet" href="css/style.css?v=26" />
+</head>
+<body>
+
+  <!-- ===================== 타이틀 화면 ===================== -->
+  <section id="titleScreen" class="screen">
+    <canvas id="titleCanvas"></canvas>
+    <div class="title-veil"></div>
+
+    <div class="title-content">
+      <div class="title-kicker">NAN 2026 <span class="dot">·</span> 게임 <span class="dot">×</span> AI</div>
+      <h1 class="logo">DOCTRINE<span class="en">교 리</span></h1>
+      <p class="tagline">
+        <b>당신의 모든 명령이 교리가 됩니다.</b><br>
+        AI 사령관은 당신의 말을 배우고, 스스로 판단합니다.
+      </p>
+      <div class="title-actions">
+        <button class="btn-start" id="btnStart">▶ 작전 시작</button>
+      </div>
+      <div class="title-hint">Every order becomes a doctrine.</div>
+    </div>
+
+    <div class="title-foot">PROTOTYPE · NEXT AI NETWORK 2026</div>
+
+    <!-- 로딩 -->
+    <div id="loading" class="hidden">
+      <div class="load-label">전장 접속 중</div>
+      <div class="load-track"><div class="load-fill" id="loadFill"></div></div>
+      <div class="load-flavor" id="loadFlavor">전술 네트워크 동기화…</div>
+    </div>
+  </section>
+
+  <!-- ===================== 스테이지 선택 ===================== -->
+  <section id="stageScreen" class="screen hidden">
+    <div class="stage-select">
+      <header class="ss-head">
+        <button class="ss-back" id="ssBackTitle">← 타이틀</button>
+        <div class="ss-title">
+          <span class="ss-kicker">작전 선택 · CAMPAIGN</span>
+          <h1>스테이지</h1>
+        </div>
+        <div class="ss-stars">학습한 교리 <b id="ssTotalStars">0</b> <span>🧠</span></div>
+      </header>
+      <div class="ss-grid" id="stageGrid"></div>
+      <p class="ss-hint">플레이어는 병사를 성장시키지 않습니다. <b>사령관의 사고방식</b>을 성장시킵니다. 앞 스테이지를 이겨야 다음이 열립니다.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 게임 화면 ===================== -->
+  <section id="gameScreen" class="screen hidden">
+
+    <!-- 상단 전술 HUD -->
+    <div class="hud">
+      <div class="roster ally">
+        <button class="hud-back" id="btnStageSelect" title="스테이지 선택">◀</button>
+        <div class="roster-info">
+          <span class="roster-name">우리 부대</span>
+          <span class="roster-count">생존 <b id="allyAlive">5</b>/<span id="allyTotal">5</span></span>
+        </div>
+        <div class="pips" id="allyPips"></div>
+      </div>
+
+      <div class="hud-center">
+        <div class="stage-badge" id="stageBadge">STAGE 1 · 교전 훈련</div>
+        <div class="timer" id="timer">READY</div>
+      </div>
+
+      <div class="roster enemy">
+        <div class="roster-info">
+          <span class="roster-name">적 부대</span>
+          <span class="roster-count">생존 <b id="enemyAlive">5</b>/<span id="enemyTotal">5</span></span>
+        </div>
+        <div class="pips" id="enemyPips"></div>
+      </div>
+    </div>
+
+    <!-- 본문 -->
+    <div class="stage">
+      <div class="arena-wrap">
+        <div class="frame">
+          <canvas id="arena"></canvas>
+          <div class="legend">
+            <span><b class="a">◆</b> 우리</span>
+            <span><b class="e">◆</b> 적</span>
+            <span>⚔ 전사 · 🏹 궁수 · ✚ 힐러 · ⚑ 버퍼</span>
+          </div>
+          <!-- 이벤트 토스트 -->
+          <div class="toast" id="toast"></div>
+
+          <!-- ★ 교리 발동 배너 — 플레이어가 아무 말도 안 했는데 AI가 스스로 판단한 순간 -->
+          <div class="doctrine-beat" id="doctrineBeat"></div>
+
+          <!-- 작전 회의 (War Council) -->
+          <div class="council hidden" id="council">
+            <div class="wc-panel">
+              <div class="wc-head">
+                <span class="wc-avatar">🎖</span>
+                <div>
+                  <div class="wc-name">AI 사령관</div>
+                  <div class="wc-role" id="wcBackend">전술 분석 · LOCAL</div>
+                </div>
+                <button class="wc-x" id="wcClose">✕</button>
+              </div>
+              <div class="wc-you" id="wcYou"></div>
+              <div class="wc-say" id="wcSay">전장을 분석하는 중…</div>
+              <div class="wc-forecast hidden" id="wcForecast"></div>
+              <div class="wc-actions" id="wcActions"></div>
+            </div>
+          </div>
+
+          <!-- ★ Battle Complete — 이 화면 하나가 우리 게임의 얼굴 -->
+          <div class="result-overlay hidden" id="result">
+            <div class="result-badge" id="resultBadge"></div>
+            <div class="result-title" id="resultTitle"></div>
+            <div class="result-sub" id="resultSub"></div>
+            <!-- ★ Replay — 이 전투의 인과: 당신의 말 → 의도 → 교리 → 실제 행동 → 결과 -->
+            <div class="replay" id="replay"></div>
+            <!-- ★ 캠페인 완료 — 브랜드를 남기는 종료 화면 -->
+            <div class="campaign-end" id="campaignEnd"></div>
+            <div class="dprop thinking" id="doctrineProposal"></div>
+            <div class="result-actions">
+              <button class="rbtn ghost" id="resultSelect">스테이지 선택</button>
+              <button class="rbtn ghost" id="resultAgain">↻ 재도전</button>
+              <button class="rbtn primary" id="resultNext">다음 전투 ▶</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 커맨드 패널 -->
+      <aside class="command">
+        <div class="card">
+          <h2>지휘 콘솔 · 자연어 명령</h2>
+          <textarea id="directive" placeholder="예) 적 힐러에게 화력을 집중해 먼저 처치하고, 궁수는 카이팅한다. 공격적으로 몰아쳐라."></textarea>
+          <div class="presets">
+            <button data-preset="snipe">🎯 힐러 저격</button>
+            <button data-preset="cut">🏹 원거리 차단</button>
+            <button data-preset="weak">🩸 약한 적 처치</button>
+            <button data-preset="charge">⚔ 돌격·집중</button>
+          </div>
+          <div class="controls">
+            <button id="start" class="btn primary" data-mode="start">▶ 전투 시작</button>
+            <button id="reset" class="btn ghost">↻</button>
+            <span class="spd">
+              <button id="sp1">×1</button>
+              <button id="sp2">×2</button>
+              <button id="sp4">×4</button>
+            </span>
+          </div>
+          <p class="cmd-hint">명령하지 않아도 됩니다. <b>사령관</b>은 이미 배운 교리대로 스스로 판단합니다. (Enter)</p>
+        </div>
+
+        <div class="card doctrine-card">
+          <h2>🧠 사령관의 사고방식 <span class="learned" id="doctrineCount">0개 교리</span></h2>
+          <div id="doctrineMem"><div class="empty">아직 교리가 없습니다.</div></div>
+          <button class="mini-btn" id="doctrineClear">교리 초기화</button>
+        </div>
+
+        <div class="card">
+          <h2>이번 전투의 명령</h2>
+          <div id="doctrine"><div class="empty">명령이 없으면 사령관이 교리대로 판단합니다.</div></div>
+        </div>
+
+        <div class="card">
+          <h2>적 부대</h2>
+          <div id="enemyRead"><span class="chips-title">전투를 시작하면 표시됩니다.</span></div>
+        </div>
+
+        <div class="card">
+          <h2>전투 피드</h2>
+          <div id="feed"><span class="empty">교전 기록이 여기에 표시됩니다.</span></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ?v= 는 브라우저 캐시 무효화용. JS/CSS 수정 시 반드시 함께 올릴 것. -->
+  <script src="js/brain.js?v=26"></script>
+  <script src="js/units.js?v=26"></script>
+  <script src="js/doctrine.js?v=26"></script>
+  <script src="js/game.js?v=26"></script>
+  <script src="js/advisor.js?v=26"></script>
+  <script src="js/title.js?v=26"></script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 17mm 16mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #1b2330; --muted: #5b6675; --line: #dfe4ea;
+    --amber: #d9820a; --amber-bg: #fff6e8;
+    --blue: #2f6fb0; --blue-bg: #eef4fb;
+    --red: #c0392b; --green: #1f7a4d;
+  }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; color: var(--ink);
+    font-size: 10.5pt; line-height: 1.6; }
+  h1,h2,h3 { line-height: 1.25; }
+  .mono { font-family: "SF Mono","Menlo",monospace; }
+  p { margin: 6px 0; }
+  strong { color: var(--ink); }
+  .accent { color: var(--amber); }
+  .blue { color: var(--blue); }
+
+  /* 표지 */
+  .cover { height: 262mm; display: flex; flex-direction: column; justify-content: center; }
+  .cover .kicker { font-family: "SF Mono",monospace; font-size: 10pt; letter-spacing: 3px;
+    color: var(--muted); text-transform: uppercase; }
+  .cover h1 { font-size: 64pt; font-weight: 800; letter-spacing: -2px; margin: 6px 0 2px; }
+  .cover .kr { font-size: 20pt; font-weight: 700; color: var(--muted); letter-spacing: 8px; }
+  .cover .tag { font-size: 15pt; font-style: italic; color: var(--amber); margin: 22px 0 4px; }
+  .cover .tagline-ko { font-size: 12.5pt; font-weight: 700; color: var(--ink); margin: 0 0 14px; }
+  .cover .oneline { font-size: 11pt; color: var(--muted); max-width: 150mm; }
+  .cover .badges { margin-top: 26px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge { font-family: "SF Mono",monospace; font-size: 8pt; padding: 4px 10px; border-radius: 20px;
+    background: var(--blue-bg); color: var(--blue); border: 1px solid #cfe0f0; }
+  .badge.a { background: var(--amber-bg); color: var(--amber); border-color: #f0d9b0; }
+  .cover .foot { margin-top: auto; font-family: "SF Mono",monospace; font-size: 9pt; color: var(--muted);
+    border-top: 1px solid var(--line); padding-top: 12px; }
+  .cover .doc-type { font-size: 13pt; font-weight: 700; margin-top: 30px; color: var(--ink); }
+
+  /* 섹션 */
+  section { page-break-inside: avoid; margin-top: 22px; }
+  h2 { font-size: 16pt; font-weight: 800; padding-bottom: 6px; border-bottom: 2px solid var(--amber);
+    display: inline-block; margin-bottom: 10px; }
+  h2 .num { font-family:"SF Mono",monospace; font-size: 11pt; color: var(--amber); margin-right: 8px; }
+  h3 { font-size: 11.5pt; font-weight: 700; margin: 14px 0 4px; color: var(--ink); }
+
+  .lead { font-size: 11pt; color: var(--muted); margin-bottom: 8px; }
+
+  /* 흐름 다이어그램 */
+  .flow { display: flex; align-items: stretch; gap: 6px; margin: 12px 0; flex-wrap: wrap; }
+  .fbox { flex: 1; min-width: 90px; text-align: center; border: 1px solid var(--line); border-radius: 8px;
+    padding: 9px 7px; background: #fafbfc; }
+  .fbox .fl { font-family:"SF Mono",monospace; font-size: 7.5pt; letter-spacing: 1px; color: var(--muted); }
+  .fbox .ft { font-size: 10pt; font-weight: 700; margin-top: 3px; }
+  .fbox.b1 { border-color:#c9d6e5; } .fbox.b2 { border-color:#bcd; background:var(--blue-bg); }
+  .fbox.b3 { border-color:#e6c58a; background:var(--amber-bg); } .fbox.b3 .ft { color:var(--amber); }
+  .farrow { align-self: center; color: var(--muted); font-size: 12pt; }
+
+  /* 표 */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.8pt; }
+  th,td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #f4f6f8; font-weight: 700; font-size: 9pt; }
+  td.c, th.c { text-align: center; }
+  .ok { color: var(--green); font-weight: 700; } .no { color: var(--red); font-weight: 700; }
+
+  /* 콜아웃 */
+  .callout { border-left: 3px solid var(--amber); background: var(--amber-bg); padding: 9px 13px;
+    border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 10pt; }
+  .callout.blue { border-color: var(--blue); background: var(--blue-bg); }
+
+  /* 스테이지 카드 */
+  .stages { display: flex; flex-direction: column; gap: 7px; margin: 10px 0; }
+  .stage { display: flex; gap: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; }
+  .stage .sn { font-family:"SF Mono",monospace; font-size: 8.5pt; color: var(--amber); font-weight: 700;
+    min-width: 62px; padding-top: 2px; }
+  .stage .sb b { font-size: 10.5pt; } .stage .sb p { margin: 2px 0 0; color: var(--muted); font-size: 9.5pt; }
+  .stage.key { border-color: var(--amber); background: #fffdf8; }
+
+  .steps { margin: 8px 0 8px 18px; } .steps li { margin: 4px 0; }
+  .shot { border: 1px dashed #c7cfd8; border-radius: 8px; padding: 20px; text-align: center;
+    color: #9aa5b1; font-size: 9pt; background: #fafbfc; margin: 10px 0; }
+  .fun { border: 1px solid #e6c58a; background: #fffdf8; border-radius: 8px; padding: 11px 14px; margin: 8px 0; }
+  .fun p { margin: 6px 0; font-size: 10.2pt; }
+  .shot-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .shot-grid figure { flex: 1; min-width: 45%; margin: 0; }
+  .shot-grid .shot { flex: 1; min-width: 45%; margin: 0; padding: 26px 12px; }
+  .shot .cap { display: block; font-weight: 700; color: #7a8794; margin-bottom: 3px; }
+  /* 문서 스크린샷 */
+  figure { margin: 0; }
+  .doc-img { width: 100%; display: block; border: 1px solid var(--line); border-radius: 8px; }
+  figcaption { font-size: 8.5pt; color: var(--muted); margin-top: 4px; text-align: center; }
+  .hero-shot { margin: 14px 0 4px; }
+  .hero-shot .doc-img { border: 1.5px solid var(--amber); }
+  .hero-shot figcaption { font-size: 9.5pt; color: var(--ink); font-weight: 600; }
+  .final { text-align: center; margin: 26px 0 6px; padding: 16px; border-top: 2px solid var(--amber); }
+  .final b { font-size: 12pt; }
+  .pagebreak { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<!-- ===== 표지 ===== -->
+<div class="cover">
+  <div class="kicker">NAN 2026 · NHN 게임 × AI 해커톤 예선</div>
+  <h1>DOCTRINE</h1>
+  <div class="kr">교 리</div>
+  <div class="tag">Every order becomes a doctrine.</div>
+  <div class="tagline-ko">플레이어는 병사를 성장시키지 않는다. AI 사령관의 사고방식을 성장시킨다.</div>
+  <div class="oneline"><strong>플레이어의 자연어 명령을 AI 사령관의 영구적인 전술 교리(Doctrine)로
+    일반화하는 실시간 전략 게임</strong></div>
+  <div class="badges">
+    <span class="badge a">OpenAI GPT-4o</span>
+    <span class="badge">Rule-based Fallback</span>
+    <span class="badge">Natural Language RTS</span>
+    <span class="badge">Doctrine Learning</span>
+    <span class="badge">Dependencies 0</span>
+  </div>
+  <div class="doc-type">게임 소개 및 설명 문서</div>
+  <div class="foot">제출자: cynkai · github.com/cynkai &nbsp;|&nbsp; 장르: Real-time Tactical AI Strategy
+    &nbsp;|&nbsp; 플랫폼: Web (의존성 0, 순수 HTML/JS/Canvas)</div>
+</div>
+
+<!-- ===== 1. 게임 개요 ===== -->
+<section class="pagebreak">
+  <h2><span class="num">01</span>게임 개요</h2>
+  <p class="lead">한 줄로: <strong>당신은 병사를 조종하지 않는다. AI 사령관의 사고방식을 키운다.</strong></p>
+  <p>기존 실시간 전략 게임에서 명령은 곧 행동이고, 전투가 끝나면 사라진다.
+    <strong>DOCTRINE</strong>에서 명령은 사라지지 않는다. AI 사령관이 그 명령의 <strong>의도</strong>를 추론하고,
+    유닛 이름이 아니라 <strong>역할군(원리)</strong> 수준으로 일반화해 <strong>영구적인 전술 교리(Doctrine)</strong>로
+    저장한다. 그 교리는 다음 전투에서 <strong>플레이어가 아무 말도 하지 않아도</strong> 스스로 적용된다.</p>
+
+  <div class="flow">
+    <div class="fbox b1"><div class="fl">기존 RTS</div><div class="ft">명령 → 행동</div></div>
+    <div class="farrow">vs</div>
+    <div class="fbox b2"><div class="fl">DOCTRINE</div><div class="ft">명령 → 의도</div></div>
+    <div class="farrow">→</div>
+    <div class="fbox b3"><div class="fl">일반화</div><div class="ft">교리(Doctrine)</div></div>
+    <div class="farrow">→</div>
+    <div class="fbox b1"><div class="fl">다음 전투</div><div class="ft">스스로 적용</div></div>
+  </div>
+
+  <div class="callout">이 프로토타입이 증명하는 것은 <strong>단 하나</strong>다 —
+    “플레이어의 자연어 명령은 일회성 행동이 아니라, AI 사령관의 <strong>영구적인 사고방식</strong>으로 진화한다.”</div>
+
+  <h3>왜 재미있는가?</h3>
+  <div class="fun">
+    <p>플레이어는 병사를 성장시키지 않는다. <strong>AI 사령관의 사고방식을 성장시킨다.</strong>
+      매 전투마다 교리가 쌓이고 진화하면서, 같은 스테이지도 <strong>플레이어마다 다르게</strong> 풀린다.</p>
+    <p>“힐러 먼저”라고 친 사람과 “뒤부터 죽여”라고 친 사람은 <strong>서로 다른 사고방식의 사령관</strong>을
+      갖게 된다. 내가 내린 명령이 나만의 AI를 만든다 — 그 사령관이 다음 전장에서 내가 예상하지 못한
+      방식으로 스스로 판단할 때, “<strong>어? 내 말을 이렇게 이해했구나</strong>”라는 순간이 온다.</p>
+  </div>
+</section>
+
+<!-- ===== 2. 핵심 경험 (스테이지) ===== -->
+<section>
+  <h2><span class="num">02</span>핵심 경험 — 4개의 스테이지</h2>
+  <p class="lead">각 스테이지는 “교리가 어떻게 태어나고, 일반화되고, 자기 한계를 배우는가”를 순서대로 보여준다.</p>
+  <div class="stages">
+    <div class="stage"><div class="sn">STAGE 1<br>첫 교전</div><div class="sb">
+      <b>명령이 교리가 되는 순간</b>
+      <p>플레이어가 자연어로 명령한다(예: “쟤 하나 때문에 안 죽잖아”). 전투 후 사령관이 의도를
+        <strong>회복 차단</strong>으로 추론하고, 교리 「증폭형 우선 제거」를 제안한다 → 채택.</p></div></div>
+    <div class="stage"><div class="sn">STAGE 2<br>재확인</div><div class="sb">
+      <b>기억의 증명</b>
+      <p>같은 편성. 이번엔 <strong>명령하지 않아도</strong> 사령관이 교리를 기억해 스스로 적용한다. 신뢰도 100%.</p></div></div>
+    <div class="stage key"><div class="sn">STAGE 3<br>증명</div><div class="sb">
+      <b>일반화의 증명 — “어?”</b>
+      <p>적에 <strong>힐러가 없다.</strong> 대신 <strong>버퍼</strong>가 있다. 플레이어는 침묵하는데,
+        같은 교리가 버퍼(힐러와 같은 ‘지원형’)를 먼저 제거한다. 플레이어는 “버퍼”라는 단어를 입력한 적이 없다.</p></div></div>
+    <div class="stage key"><div class="sn">STAGE 4<br>예외</div><div class="sb">
+      <b>일반화의 한계 인식 — “아.”</b>
+      <p>지원형이 <strong>자폭</strong>한다. 교리대로 먼저 치면 폭발에 아군이 갈려 패배한다.
+        사령관은 규칙을 <strong>버리지 않고</strong> 예외를 배운다 — “단, 자폭 특성을 가진 적은 제외한다.”</p></div></div>
+  </div>
+  <div class="callout blue"><strong>검증(명령 없이 각 30회):</strong> 교리 없음 → S3 승률 <span class="no">0%</span> /
+    교리 적용 → <span class="ok">100%</span>. 교리 맹신 → S4 <span class="no">0%</span> /
+    예외 학습 → <span class="ok">100%</span>. <strong>교리는 장식이 아니라 승패를 가르는 판단이다.</strong></div>
+
+  <figure class="hero-shot">
+    <img class="doc-img" src="../assets/hero.png" alt="STAGE 3 Battle Complete">
+    <figcaption>STAGE 3 — 플레이어는 <strong>침묵</strong>했다. 사령관이 스스로 「지원형 우선 제거」 교리를 발동해
+      힐러가 없는 전장에서 <strong>버퍼(지원형)를 먼저 제거하고 승리</strong>. 명령 없이, GPT-4o의 분석과 함께.</figcaption>
+  </figure>
+</section>
+
+<!-- ===== 3. 플레이 방법 ===== -->
+<section class="pagebreak">
+  <h2><span class="num">03</span>플레이 방법</h2>
+  <h3>① 자연어로 명령한다</h3>
+  <p>지휘 콘솔에 일상어로 입력한다. “힐러 먼저”처럼 게임 용어가 아니어도 된다 —
+    “쟤 하나 때문에 안 죽잖아”, “뒤에 깃발 든 애 거슬려”처럼 <strong>당신의 말</strong>이면 된다.
+    명령하지 않으면 사령관이 이미 배운 교리대로 스스로 판단한다.</p>
+  <h3>② 전투 후, 교리를 협상한다</h3>
+  <p>전투가 끝나면 사령관이 이번 전투를 분석해 교리를 제안한다.
+    <strong>채택(Adopt) · 다듬기 · 보류</strong> 중 선택한다. 채택하면 다음 전투부터 자동 적용된다.</p>
+  <h3>③ Replay로 인과를 읽는다</h3>
+  <p>“당신의 말 → 사령관 이해 → 교리 → 실제 행동 → 결과”가 한 줄로 재생된다.
+    왜 그렇게 됐는지 스스로 답할 수 있다.</p>
+  <h3>④ 침묵을 경험한다</h3>
+  <p>명령 없이 전투를 시작하면 잠깐 정지하며 “당신은 침묵했습니다 / 사령관이 판단합니다”가 뜬 뒤,
+    사령관이 학습한 교리로 스스로 움직인다.</p>
+</section>
+
+<!-- ===== 4. 화면 구성 ===== -->
+<section>
+  <h2><span class="num">04</span>화면 구성</h2>
+  <table>
+    <tr><th style="width:32%">요소</th><th>설명</th></tr>
+    <tr><td><strong>지휘 콘솔</strong></td><td>자연어 명령 입력. 전투 중에도 규칙을 누적할 수 있다.</td></tr>
+    <tr><td><strong>Battle Complete</strong><br>(게임의 얼굴)</td><td>Replay 인과 사슬 → 분석(Analysis) → 새 교리(New Doctrine) → 채택/다듬기/보류.
+      교리의 진화(구어체→의도→원리→예외)가 단계별로 드러난다.</td></tr>
+    <tr><td><strong>사령관의 사고방식</strong></td><td>학습한 교리 목록 + Commander Identity(별명, 대표 교리에서 유도) + 신뢰도.</td></tr>
+    <tr><td><strong>추론 백엔드 배지</strong></td><td>분석이 실제 LLM인지 규칙 기반 폴백인지 항상 표시 — <span class="mono">OPENAI · gpt-4o</span> /
+      <span class="mono">LOCAL · 규칙 기반</span>. (규칙 기반을 LLM인 척하지 않는다.)</td></tr>
+  </table>
+  <h3>핵심 화면</h3>
+  <div class="shot-grid">
+    <figure><img class="doc-img" src="../assets/silence.png" alt="침묵">
+      <figcaption>① <strong>침묵</strong> — 명령 없이 전투를 시작하면 사령관이 스스로 판단한다.</figcaption></figure>
+    <figure><img class="doc-img" src="../assets/applied.png" alt="Doctrine Applied">
+      <figcaption>② <strong>Doctrine Applied</strong> — 조건이 성립하면 학습한 교리가 자동 발동한다.</figcaption></figure>
+    <figure><img class="doc-img" src="../assets/proposal.png" alt="Doctrine Proposal">
+      <figcaption>③ <strong>교리 제안</strong> — 전투 후 채택 / 다듬기 / 보류로 협상한다.</figcaption></figure>
+    <figure><img class="doc-img" src="../assets/commander.png" alt="Commander Profile">
+      <figcaption>④ <strong>Commander</strong> — 학습한 교리에서 유도된 별명 + 신뢰도.</figcaption></figure>
+  </div>
+</section>
+
+<!-- ===== 5. 실행 방법 ===== -->
+<section>
+  <h2><span class="num">05</span>실행 방법</h2>
+  <p class="lead">의존성 0. 브라우저만 있으면 된다. LLM은 키를 넣으면 자동 승격, 없으면 규칙 기반으로 폴백한다.</p>
+  <table>
+    <tr><th style="width:34%">모드</th><th>실행</th></tr>
+    <tr><td><strong>LLM 추론</strong> (기본 · 시연용)</td>
+      <td class="mono">OPENAI_API_KEY=sk-... node server/proxy.js<br>→ http://localhost:8731</td></tr>
+    <tr><td><strong>키 없이 평가</strong> (규칙 기반 폴백)</td>
+      <td class="mono">python3 -m http.server 8731</td></tr>
+  </table>
+  <p><strong>요구사항:</strong> Node.js 18+ (LLM 모드) 또는 Python 3 (폴백). 외부 라이브러리 설치 없음.
+    <span class="mono">/api/health</span>가 503이면 프런트가 자동으로 규칙 기반으로 동작하며, 두 경로는
+    완전히 같은 계약을 지키므로 프런트 코드는 한 줄도 바뀌지 않는다. <strong>API 키는 서버에만 존재한다.</strong></p>
+  <div class="callout"><strong>회귀 테스트:</strong> <span class="mono">node scripts/proof.js</span> — 30/30.
+    일반화·조건부 발동·예외 학습·교리 충돌 해소·없는 의도 안 지어내기·폴백의 한계까지 코드로 고정.</div>
+</section>
+
+<div class="final">
+  <b>This project does not use AI to replace the player.<br>
+  It uses AI to remember, generalize, and evolve the player’s strategy.</b>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+# OS
+.DS_Store
+
+# 로그 / 임시
+logs/
+*.log
+
+# 문서 빌드 중간물 (PDF만 커밋, HTML 소스는 유지)
+# docs/*.html 은 소스로 유지합니다.
+
+# 에디터
+.vscode/
+.idea/
+
+# 의존성 (이 프로젝트는 의존성 0이지만 혹시 모를 대비)
+node_modules/
+
+# 환경변수 — API 키는 절대 커밋하지 않습니다
+.env
+*.key

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 17mm 16mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #1b2330; --muted: #5b6675; --line: #dfe4ea;
+    --amber: #d9820a; --amber-bg: #fff6e8;
+    --blue: #2f6fb0; --blue-bg: #eef4fb;
+    --red: #c0392b; --green: #1f7a4d;
+  }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; color: var(--ink);
+    font-size: 10.5pt; line-height: 1.6; }
+  h1,h2,h3 { line-height: 1.25; }
+  .mono { font-family: "SF Mono","Menlo",monospace; }
+  p { margin: 6px 0; }
+  .accent { color: var(--amber); } .blue { color: var(--blue); }
+
+  .cover { height: 262mm; display: flex; flex-direction: column; justify-content: center; }
+  .cover .kicker { font-family:"SF Mono",monospace; font-size: 10pt; letter-spacing: 3px;
+    color: var(--muted); text-transform: uppercase; }
+  .cover .doclabel { font-size: 13pt; font-weight: 700; color: var(--muted); margin: 14px 0 2px; }
+  .cover .doclabel b { color: var(--ink); }
+  .cover h1 { font-size: 46pt; font-weight: 800; letter-spacing: -1.5px; margin: 4px 0 6px;
+    color: var(--amber); line-height: 1.1; }
+  .cover .qs { font-size: 12pt; color: var(--ink); max-width: 152mm; }
+  .cover .foot { margin-top: auto; font-family:"SF Mono",monospace; font-size: 9pt; color: var(--muted);
+    border-top: 1px solid var(--line); padding-top: 12px; }
+
+  section { page-break-inside: avoid; margin-top: 20px; }
+  h2 { font-size: 15pt; font-weight: 800; padding-bottom: 6px; border-bottom: 2px solid var(--amber);
+    display: inline-block; margin-bottom: 10px; }
+  h2 .num { font-family:"SF Mono",monospace; font-size: 10.5pt; color: var(--amber); margin-right: 8px; }
+  h3 { font-size: 11pt; font-weight: 700; margin: 13px 0 4px; }
+  .lead { font-size: 10.5pt; color: var(--muted); margin-bottom: 8px; }
+
+  .flow { display: flex; align-items: stretch; gap: 5px; margin: 12px 0; flex-wrap: wrap; }
+  .fbox { flex: 1; min-width: 78px; text-align: center; border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 6px; background: #fafbfc; }
+  .fbox .fl { font-family:"SF Mono",monospace; font-size: 7pt; letter-spacing: 0.5px; color: var(--muted); }
+  .fbox .ft { font-size: 9.5pt; font-weight: 700; margin-top: 3px; }
+  .fbox .fd { font-size: 7.5pt; color: var(--muted); margin-top: 2px; }
+  .fbox.b2 { background:var(--blue-bg); border-color:#bcd; }
+  .fbox.b3 { background:var(--amber-bg); border-color:#e6c58a; } .fbox.b3 .ft{color:var(--amber);}
+  .farrow { align-self: center; color: var(--muted); font-size: 11pt; }
+
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.6pt; }
+  th,td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #f4f6f8; font-weight: 700; font-size: 8.8pt; }
+  td.c, th.c { text-align: center; }
+  .ok { color: var(--green); font-weight: 700; } .no { color: var(--red); font-weight: 700; }
+  tr.hl td { background: #fffdf6; }
+
+  .callout { border-left: 3px solid var(--amber); background: var(--amber-bg); padding: 9px 13px;
+    border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 10pt; }
+  .callout.blue { border-color: var(--blue); background: var(--blue-bg); }
+  .callout.red { border-color: var(--red); background: #fdecea; }
+
+  pre { background: #1b2330; color: #e8edf3; border-radius: 8px; padding: 12px 14px; font-size: 9.3pt;
+    line-height: 1.65; overflow: hidden; white-space: pre-wrap; margin: 10px 0;
+    font-family:"SF Mono",monospace; }
+  pre .k { color: #ffcf8b; } pre .c { color: #8fa6bd; } pre .s { color: #9fe0b0; }
+  code.inl { font-family:"SF Mono",monospace; background:#eef1f4; padding:1px 5px; border-radius:4px; font-size:9pt; }
+
+  .pagebreak { page-break-before: always; }
+  .two { display: flex; gap: 12px; } .two > div { flex: 1; }
+  figure { margin: 12px 0 4px; }
+  .doc-img { width: 100%; display: block; border: 1.5px solid var(--amber); border-radius: 8px; }
+  figcaption { font-size: 9pt; color: var(--ink); margin-top: 5px; text-align: center; }
+  .conclusion { margin: 16px 0; }
+  .conclusion p { font-size: 12pt; margin: 12px 0; }
+  .conclusion .big { font-size: 17pt; font-weight: 800; line-height: 1.4; margin: 16px 0; }
+  .final { text-align: center; margin: 30px 0 6px; padding: 15px; border-top: 2px solid var(--amber); }
+  .final b { font-size: 11.5pt; }
+  ul.tight { margin: 6px 0 6px 18px; } ul.tight li { margin: 3px 0; }
+</style>
+</head>
+<body>
+
+<!-- ===== 표지 ===== -->
+<div class="cover">
+  <div class="kicker">NAN 2026 · NHN 게임 × AI 해커톤 예선</div>
+  <div class="doclabel">AI 활용 기술 문서 · <b>DOCTRINE · 교리</b></div>
+  <h1>왜 LLM이 아니면<br>안 되는가?</h1>
+  <div class="qs">이 문서는 “어떻게 만들었는가(How)”가 아니라, <strong>“왜 이 경험은 LLM이 아니면
+    만들 수 없는가(Why)”</strong>에 답한다. 그리고 그 답을 말이 아니라 <strong>실측 데이터와 실제
+    프롬프트</strong>로 증명한다.</div>
+  <div class="foot">제출자: cynkai · github.com/cynkai &nbsp;|&nbsp; 제품 AI: OpenAI GPT-4o (structured outputs)
+    &nbsp;|&nbsp; 개발 AI: Claude (Claude Code)</div>
+</div>
+
+<!-- ===== 1. 요약 ===== -->
+<section class="pagebreak">
+  <h2><span class="num">01</span>요약 — 이 게임에서 AI의 역할</h2>
+  <p>이 게임에서 LLM은 <strong>NPC 대화</strong>나 <strong>텍스트 생성</strong> 같은 장식이 아니다.
+    LLM은 게임의 <strong>핵심 메커니즘</strong> 그 자체다. 두 가지 일을 한다.</p>
+  <ul class="tight">
+    <li><strong>의도 추론(Intent Extraction)</strong> — 플레이어의 임의의 자연어를 이번 전투의 정책으로 번역.</li>
+    <li><strong>일반화(Doctrine Generation)</strong> — 전투 결과를 보고 그 의도를 유닛 이름이 아니라
+      <strong>역할군(원리)</strong> 수준의 영구 교리로 승격.</li>
+  </ul>
+  <div class="callout blue">이 두 가지 — <strong>임의의 자연어에서 의도를 읽고, 그것을 규칙으로 일반화하는 것</strong> —
+    은 규칙 기반 시스템으로는 불가능하다. 그것이 이 게임이 LLM을 쓰는 유일하고 충분한 이유다.</div>
+</section>
+
+<!-- ===== 2. Why LLM (핵심) ===== -->
+<section>
+  <h2><span class="num">02</span>왜 LLM인가 — 이 표 하나</h2>
+  <p class="lead">사람은 사전에 있는 말로 말하지 않는다. 아래는 <strong>실제 측정값</strong>이다
+    (Rule-based = <span class="mono">scripts/proof.js</span>, LLM = <span class="mono">gpt-4o</span> 실호출 응답).</p>
+  <table>
+    <tr><th style="width:38%">플레이어 입력</th><th class="c" style="width:14%">Rule-based</th>
+      <th class="c" style="width:14%">LLM</th><th>LLM이 읽은 의도</th></tr>
+    <tr><td>“적 힐러에게 화력을 집중해 먼저 처치해라”</td><td class="c ok">✅</td><td class="c ok">✅</td><td>회복 차단</td></tr>
+    <tr class="hl"><td>“쟤 하나 때문에 안 죽잖아”</td><td class="c no">❌</td><td class="c ok">✅ support</td><td><strong>회복 차단</strong></td></tr>
+    <tr class="hl"><td>“뒤에 깃발 든 애 거슬려”</td><td class="c no">❌</td><td class="c ok">✅ support</td><td>지원 제거</td></tr>
+    <tr class="hl"><td>“뒤부터 죽여”</td><td class="c no">❌</td><td class="c ok">✅ ranged</td><td>후방 위협 제거</td></tr>
+    <tr><td>“안녕하세요”</td><td class="c no">❌</td><td class="c no">❌</td><td>이해하지 못함</td></tr>
+  </table>
+  <p>이 표가 동시에 증명하는 세 가지:</p>
+  <ul class="tight">
+    <li><strong>수렴</strong> — “깃발 든 애”와 “안 죽잖아”는 공통 단어가 하나도 없는데 둘 다 <span class="mono">support</span>로 간다.</li>
+    <li><strong>구분</strong> — “뒤부터 죽여”는 <span class="mono">ranged</span>다. 아무거나 support로 뱉지 않는다.</li>
+    <li><strong>절제</strong> — “안녕하세요”는 이해하지 못한다(<span class="mono">understood:false</span>). 없는 의도를 지어내지 않는다.</li>
+  </ul>
+  <div class="callout">특히 “쟤 하나 때문에 안 죽잖아” → <strong>회복 차단</strong>은, 규칙 엔진에 미리 정의된 것과
+    <strong>똑같은 결론에 GPT가 그 문장을 처음 보고 독립적으로 도달</strong>한 것이다. 정규식에서 해당 키워드는
+    제거되어 있다(폴백에 데모 문장을 하드코딩하지 않았다).</div>
+</section>
+
+<!-- ===== 3. 아키텍처 ===== -->
+<section class="pagebreak">
+  <h2><span class="num">03</span>아키텍처 — 네 개의 상자</h2>
+  <div class="flow">
+    <div class="fbox"><div class="fl">INPUT</div><div class="ft">Player Prompt</div><div class="fd">"쟤 하나 때문에…"</div></div>
+    <div class="farrow">→</div>
+    <div class="fbox b2"><div class="fl">/api/intent</div><div class="ft">Intent Extraction</div><div class="fd">→ targetRole: support</div></div>
+    <div class="farrow">→</div>
+    <div class="fbox b3"><div class="fl">/api/doctrine</div><div class="ft">Doctrine Generator</div><div class="fd">원리로 일반화 + 예외</div></div>
+    <div class="farrow">→</div>
+    <div class="fbox"><div class="fl">localStorage</div><div class="ft">Doctrine Memory</div><div class="fd">다음 전투 자동 적용</div></div>
+  </div>
+  <table>
+    <tr><th style="width:30%">엔드포인트 / 파일</th><th>역할</th></tr>
+    <tr><td class="mono">/api/intent</td><td>전투 전. 자연어 → 이번 전투의 정책(targetRole, focusFire, aggression …).</td></tr>
+    <tr><td class="mono">/api/doctrine</td><td>전투 후. 전투 결과 → 영구 교리(condition + action) 또는 예외.</td></tr>
+    <tr><td class="mono">server/proxy.js</td><td>LLM 프록시. OpenAI · Anthropic 어댑터가 <strong>동일 계약</strong>. 키는 서버에만.</td></tr>
+    <tr><td class="mono">js/doctrine.js</td><td>클라이언트 심장. LLM 실패 시 규칙 기반으로 자동 강등(동일 계약).</td></tr>
+  </table>
+  <p>교리는 “패턴”이 아니라 “원리”다 — 전장에 대해 평가되는 <strong>조건부 술어</strong>다.</p>
+  <pre><span class="c">// 교리 = 조건(condition) + 행동(action)</span>
+{
+  <span class="k">"name"</span>: <span class="s">"증폭형 우선 제거"</span>,
+  <span class="k">"condition"</span>: { <span class="k">"requiresTrait"</span>: <span class="s">"amplifier"</span> },   <span class="c">// 증폭형이 없는 전장에선 발동조차 안 함</span>
+  <span class="k">"action"</span>:    { <span class="k">"targetRole"</span>: <span class="s">"support"</span>, <span class="k">"exceptTrait"</span>: <span class="s">"volatile"</span> }  <span class="c">// 지원형 우선, 단 자폭은 제외</span>
+}</pre>
+</section>
+
+<!-- ===== 4. 실제 프롬프트 ===== -->
+<section>
+  <h2><span class="num">04</span>실제 프롬프트 & 출력 제약</h2>
+  <p class="lead">프롬프트의 핵심은 “표면의 단어가 아니라 의도를 읽어라”이고, 출력은 <span class="mono">json_schema</span>로
+    게임이 아는 값에 <strong>강제 제약</strong>된다.</p>
+  <h3>System Prompt — Intent Extraction (발췌)</h3>
+  <pre><span class="c"># /api/intent 시스템 프롬프트 (server/proxy.js)</span>
+당신은 전술 게임의 "AI 사령관"이다. 플레이어가 자연어로 내린 명령을 정책으로 번역한다.
+
+★ 핵심: 플레이어는 게임 용어로 말하지 않는다. 일상어·비유·불평으로 말한다.
+  "쟤 하나 때문에 안 죽잖아"  → 회복시켜주는 적이 있다 → targetRole="support"
+  "뒤부터 죽여"              → 후방의 원거리·지원 유닛부터 → targetRole="ranged"
+표면의 단어가 아니라 **의도**를 읽어라.
+- targetRole은 주어진 role 목록 중 하나이거나 null. 지어내지 마라.
+- 전혀 전술 명령이 아니면(예: "안녕") understood=false.</pre>
+  <h3>System Prompt — Doctrine Generation (발췌)</h3>
+  <pre><span class="c"># /api/doctrine 시스템 프롬프트 (server/proxy.js)</span>
+★ 가장 중요한 원칙: 교리는 "패턴"이 아니라 "원리"여야 한다.
+  ❌ "힐러를 먼저 공격한다"                         (유닛 이름 암기)
+  ⭕ "적 전력을 증폭하는 지원형이 있으면 먼저 제거한다" (전장에 대한 술어)
+- 반드시 역할군(role) 수준으로 일반화하라. (힐러도 버퍼도 support)
+- 예외 학습: 교리를 적용했는데 특정 특성 때문에 졌다면, 교리를 버리지 말고
+  exceptTrait에 그 특성을 넣어라. (자폭 → role="support", exceptTrait="volatile")
+- 없는 의도를 지어내지 마라. 명령이 없었으면 role=null.</pre>
+  <div class="callout"><strong>구조적 안전장치:</strong> 출력은 <span class="mono">strict json_schema</span>로,
+    <span class="mono">role</span>·<span class="mono">trait</span>이 게임이 정의한 enum 값만 허용한다.
+    → LLM은 <strong>게임 규칙을 지어낼 수 없고, 오직 의도 해석만</strong> 담당한다. 액션 스페이스는 코드가 정의하고, LLM은 그 안에서 판단한다.</div>
+</section>
+
+<!-- ===== 5. 실측 결과 ===== -->
+<section class="pagebreak">
+  <h2><span class="num">05</span>실측 결과 (GPT-4o 실호출)</h2>
+  <p class="lead">동일 프록시(<span class="mono">OPENAI · gpt-4o</span>)에 실제로 보낸 요청의 응답이다.</p>
+  <pre>입력: <span class="k">"뒤에 깃발 든 애 거슬려"</span>
+→ { understood: true, targetRole: <span class="s">"support"</span>, focusFire: false,
+    why: <span class="s">"지원 제거"</span>, rules: [<span class="s">"적 지원형을 최우선 제거"</span>] }
+
+입력: <span class="k">"쟤 하나 때문에 안 죽잖아"</span>
+→ { understood: true, targetRole: <span class="s">"support"</span>, focusFire: true,
+    why: <span class="s">"회복 차단"</span>, rules: [<span class="s">"적 지원형을 최우선 제거"</span>, <span class="s">"화력 집중"</span>] }
+
+입력: <span class="k">"뒤부터 죽여"</span>
+→ { understood: true, targetRole: <span class="s">"ranged"</span>, focusFire: true,
+    why: <span class="s">"후방 위협 제거"</span>, rules: [<span class="s">"후방 위협 제거"</span>, <span class="s">"화력 집중"</span>] }
+
+입력: <span class="k">"안녕하세요"</span>
+→ { understood: false, targetRole: null }   <span class="c">// 지어내지 않는다</span></pre>
+  <div class="callout blue"><strong>예외 학습(STAGE 4)도 GPT가 직접 판단했다.</strong> 교리를 적용해 패배한 뒤,
+    GPT가 스스로 <span class="mono">role="support"</span>를 유지하면서 <span class="mono">exceptTrait="volatile"</span>을
+    출력했다 — 규칙을 버리지 않고 예외만 건 것이다.</div>
+  <figure>
+    <img class="doc-img" src="../assets/hero.png" alt="STAGE 3 — GPT-4o 실측">
+    <figcaption>실제 게임 화면. 플레이어가 <strong>명령하지 않았는데</strong> 학습한 교리가 발동해 승리했고,
+      GPT-4o(<span class="mono">OPENAI · gpt-4o</span> 배지)가 “명령 없이 발동한 교리가 승리를 이끌었다”고 분석했다.</figcaption>
+  </figure>
+</section>
+
+<!-- ===== 6. 정직성 & 폴백 ===== -->
+<section>
+  <h2><span class="num">06</span>정직성 — 폴백은 LLM인 척하지 않는다</h2>
+  <p>키 없이도 심사·평가가 가능하도록 <strong>규칙 기반 폴백</strong>을 포함한다. 그러나 규칙 기반은
+    정규식으로 사전 정의된 교리를 고르는 것이므로, <strong>절대 LLM인 척하지 않는다.</strong>
+    Battle Complete 화면의 ANALYSIS 헤더에 추론 백엔드를 항상 표시한다.</p>
+  <div class="two">
+    <div><pre>ANALYSIS        [ <span class="s">OPENAI · gpt-4o</span> ]
+<span class="c">실제 LLM 추론</span></pre></div>
+    <div><pre>ANALYSIS        [ <span class="k">LOCAL · 규칙 기반</span> ]
+<span class="c">키 없는 평가 환경</span></pre></div>
+  </div>
+  <p>두 경로는 완전히 같은 계약(<span class="mono">ctx → {analysis, doctrine}</span>)을 지키므로, 프런트 코드는
+    한 줄도 바뀌지 않는다. 그리고 폴백의 한계(구어체를 이해하지 못함)는 <strong>회귀 테스트로 고정</strong>되어
+    있다 — 누군가 정규식에 데모 문장을 넣으면 테스트가 깨진다.</p>
+</section>
+
+<!-- ===== 7. 개발 과정의 AI 활용 ===== -->
+<section>
+  <h2><span class="num">07</span>개발 과정의 AI 활용 (AI-native Development)</h2>
+  <p class="lead">제품의 AI(GPT-4o)와 별개로, 이 프로토타입은 <strong>Claude(Claude Code)</strong>와의 협업으로 개발되었다.</p>
+  <table>
+    <tr><th style="width:30%">AI 도구</th><th>활용 내역</th></tr>
+    <tr><td><strong>Claude Code</strong><br>(개발 파트너)</td>
+      <td>설계 토론 · 구현 · 리팩터링 · 밸런스 튜닝 · 회귀 테스트 작성. 자연어로 요구를 전달하면
+        코드로 옮기고, 헤드리스 시뮬레이터로 검증하는 루프를 반복했다.</td></tr>
+    <tr><td><strong>OpenAI GPT-4o</strong><br>(제품 런타임)</td>
+      <td>게임 내 의도 추론 · 교리 생성. <span class="mono">structured outputs(json_schema)</span>로
+        출력을 게임 규칙에 제약.</td></tr>
+  </table>
+  <h3>AI 활용에서 지킨 원칙</h3>
+  <ul class="tight">
+    <li><strong>검증 우선</strong> — LLM/AI가 만든 것은 <span class="mono">proof.js</span>(30/30) 회귀
+      테스트와 헤드리스 시뮬레이션(각 30~40회)으로 반드시 검증했다.</li>
+    <li><strong>연출이 아니라 사실</strong> — “AI가 생각하는 것처럼 보이는” 가짜 연출을 거부했다.
+      Commander 별명·교리 계보·신뢰도는 모두 실제 데이터에서 <strong>유도</strong>된 것이다.</li>
+    <li><strong>정직한 폴백</strong> — LLM이 없을 때의 규칙 기반 동작을 LLM인 척 포장하지 않았다.</li>
+  </ul>
+  <div class="callout"><strong>재현:</strong> <span class="mono">OPENAI_API_KEY=sk-... node server/proxy.js</span>로
+    실행하면 위 모든 실측이 그대로 재현된다. 화면 배지가 <span class="mono">OPENAI · gpt-4o</span>로 바뀌고,
+    임의의 자연어 명령이 정책으로 번역된다.</div>
+</section>
+
+<section class="pagebreak">
+  <h2><span class="num">08</span>결론</h2>
+  <div class="conclusion">
+    <p>이 프로젝트에서 LLM은 <strong>텍스트를 생성하기 위해</strong> 사용되지 않았다.</p>
+    <p class="big">LLM은 플레이어의 <span class="accent">전략을 이해하고 일반화하기 위해</span> 사용되었다.</p>
+    <p>그래서 LLM은 이 게임의 장식이 아니라, <strong>핵심 메커니즘 그 자체</strong>다.
+      규칙 기반 시스템은 “힐러 먼저”는 처리할 수 있어도, “쟤 하나 때문에 안 죽잖아”에서 의도를 읽고
+      그것을 힐러가 없는 전장에도 적용되는 <strong>원리</strong>로 일반화할 수 없다.
+      바로 그 지점이, 이 게임이 LLM이 아니면 존재할 수 없는 이유다.</p>
+  </div>
+  <div class="final">
+    <b>This project does not use AI to replace the player.<br>
+    It uses AI to remember, generalize, and evolve the player’s strategy.</b>
+  </div>
+</section>
+
+</body>
+</html>
