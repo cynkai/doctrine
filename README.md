@@ -76,6 +76,7 @@ python3 -m http.server 8731
 
 - [게임 소개 및 설명 문서](docs/DOCTRINE_게임소개서.pdf)
 - [AI 활용 기술 문서 — 왜 LLM이 아니면 안 되는가](docs/DOCTRINE_AI활용기술문서.pdf)
+- [포트폴리오 · 참고자료 — 설계 여정 · 로드맵](docs/DOCTRINE_포트폴리오.pdf)
 
 ---
 

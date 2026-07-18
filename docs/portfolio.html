@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 17mm 16mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #1b2330; --muted: #5b6675; --line: #dfe4ea;
+    --amber: #d9820a; --amber-bg: #fff6e8;
+    --blue: #2f6fb0; --blue-bg: #eef4fb;
+    --red: #c0392b; --green: #1f7a4d;
+  }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; color: var(--ink);
+    font-size: 10.5pt; line-height: 1.62; }
+  h1,h2,h3 { line-height: 1.25; }
+  .mono { font-family: "SF Mono","Menlo",monospace; }
+  p { margin: 6px 0; }
+  .accent { color: var(--amber); } .blue { color: var(--blue); }
+
+  .cover { height: 262mm; display: flex; flex-direction: column; justify-content: center; }
+  .cover .kicker { font-family:"SF Mono",monospace; font-size: 10pt; letter-spacing: 3px;
+    color: var(--muted); text-transform: uppercase; }
+  .cover h1 { font-size: 40pt; font-weight: 800; letter-spacing: -1px; margin: 10px 0 4px; }
+  .cover .sub { font-size: 14pt; color: var(--muted); }
+  .cover .q { font-size: 15pt; font-style: italic; color: var(--amber); margin: 28px 0 6px; }
+  .cover .qs { font-size: 12pt; color: var(--ink); max-width: 152mm; }
+  .cover .foot { margin-top: auto; font-family:"SF Mono",monospace; font-size: 9pt; color: var(--muted);
+    border-top: 1px solid var(--line); padding-top: 12px; }
+
+  section { page-break-inside: avoid; margin-top: 20px; }
+  h2 { font-size: 15pt; font-weight: 800; padding-bottom: 6px; border-bottom: 2px solid var(--amber);
+    display: inline-block; margin-bottom: 10px; }
+  h2 .num { font-family:"SF Mono",monospace; font-size: 10.5pt; color: var(--amber); margin-right: 8px; }
+  h3 { font-size: 11pt; font-weight: 700; margin: 13px 0 4px; }
+  .lead { font-size: 10.5pt; color: var(--muted); margin-bottom: 8px; }
+
+  /* 진화 타임라인 */
+  .evo { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+  .evo-row { display: flex; gap: 12px; align-items: flex-start; }
+  .evo-v { font-family:"SF Mono",monospace; font-size: 9pt; font-weight: 700; color: var(--muted);
+    min-width: 46px; padding-top: 3px; }
+  .evo-c { flex: 1; border-left: 2px solid var(--line); padding: 4px 0 4px 12px; }
+  .evo-c.now { border-left-color: var(--amber); }
+  .evo-c b { font-size: 11pt; } .evo-c.now b { color: var(--amber); }
+  .evo-c p { margin: 2px 0 0; color: var(--muted); font-size: 9.6pt; }
+
+  .callout { border-left: 3px solid var(--amber); background: var(--amber-bg); padding: 9px 13px;
+    border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 10pt; }
+  .callout.blue { border-color: var(--blue); background: var(--blue-bg); }
+
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.6pt; }
+  th,td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #f4f6f8; font-weight: 700; font-size: 9pt; }
+  td.c, th.c { text-align: center; }
+  .ok { color: var(--green); font-weight: 700; } .no { color: var(--red); font-weight: 700; }
+
+  ul.tight { margin: 6px 0 6px 18px; } ul.tight li { margin: 4px 0; }
+  ul.tight li b { color: var(--ink); }
+
+  .principle { border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; margin: 7px 0; }
+  .principle b { display: block; font-size: 10.5pt; margin-bottom: 2px; }
+  .principle span { font-size: 9.6pt; color: var(--muted); }
+
+  .tier { display: flex; gap: 10px; margin: 8px 0; }
+  .tier .tn { font-family:"SF Mono",monospace; font-size: 9pt; color: var(--amber); font-weight: 700;
+    min-width: 66px; padding-top: 2px; }
+  .tier .tc b { font-size: 10.5pt; } .tier .tc p { margin: 1px 0 0; color: var(--muted); font-size: 9.5pt; }
+
+  .pagebreak { page-break-before: always; }
+  .final { text-align: center; margin: 24px 0 6px; padding: 15px; border-top: 2px solid var(--amber); }
+  .final b { font-size: 11.5pt; }
+  a { color: var(--blue); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- ===== 표지 ===== -->
+<div class="cover">
+  <div class="kicker">NAN 2026 · NHN 게임 × AI 해커톤 예선</div>
+  <h1>포트폴리오 &amp; 참고자료</h1>
+  <div class="sub"><strong>DOCTRINE · 교리</strong> — 설계 여정 · 엔지니어링 원칙 · 로드맵</div>
+  <div class="q">"프롬프트 RTS"에서 "AI 사고방식을 키우는 게임"까지.</div>
+  <div class="qs">이 문서는 결과물이 아니라 <strong>과정과 판단</strong>을 담는다. 하나의 질문 —
+    “왜 LLM이 아니면 안 되는가?” — 이 어떻게 게임의 정체성을 만들었는지, 그리고 그 정체성이
+    본선에서 어디로 향하는지를 정리한다.</div>
+  <div class="foot">제출자: cynkai &nbsp;|&nbsp; GitHub: github.com/cynkai/doctrine
+    &nbsp;|&nbsp; ※ 선택 제출 자료</div>
+</div>
+
+<!-- ===== 1. 설계 여정 ===== -->
+<section class="pagebreak">
+  <h2><span class="num">01</span>설계 여정 — 정체성은 어떻게 생겼나</h2>
+  <p class="lead">이 프로젝트의 핵심은 기능이 아니라 <strong>정의의 진화</strong>였다. 매 단계는 하나의
+    질문에 대한 답이었다: <strong>“이 게임에서 LLM이 아니면 안 되는 이유는?”</strong></p>
+  <div class="evo">
+    <div class="evo-row"><div class="evo-v">v1</div><div class="evo-c">
+      <b>프롬프트로 지휘하는 RTS</b>
+      <p>“프롬프트가 곧 빌드.” 자연어로 유닛을 조종한다. — 문제: LLM이 없어도 성립한다(UI만 AI).</p></div></div>
+    <div class="evo-row"><div class="evo-v">v2</div><div class="evo-c">
+      <b>AI가 교리를 배우는 RTS</b>
+      <p>AI = 조종기가 아니라 팀원. 승리 규칙을 저장해 다음 전투에 적용. — 진전: “왜 LLM인가”에 근접.</p></div></div>
+    <div class="evo-row"><div class="evo-v">v3</div><div class="evo-c now">
+      <b>플레이어의 자연어가 AI의 영구적 사고방식이 되는 게임</b>
+      <p>명령의 <strong>의도</strong>를 추론하고 <strong>원리</strong>로 일반화해 다음 전장에 스스로 적용.
+        — 이 지점에서 LLM은 대체 불가능한 핵심 메커니즘이 된다.</p></div></div>
+  </div>
+  <div class="callout">진화의 방향은 일관됐다: <strong>“AI를 썼다”에서 “AI가 아니면 안 된다”로.</strong>
+    기능을 더한 게 아니라, 불필요한 것을 덜어내며 하나의 명제로 수렴했다 —
+    “당신의 자연어 명령은 AI 사령관의 영구적인 교리로 진화한다.”</div>
+</section>
+
+<!-- ===== 2. 스코프 판단 ===== -->
+<section>
+  <h2><span class="num">02</span>무엇을 넣지 않았는가 — 절제의 설계</h2>
+  <p class="lead">예선의 완성도는 “얼마나 많이 넣었나”가 아니라 “무엇을 빼서 인과를 선명하게 했나”로 결정된다.</p>
+  <table>
+    <tr><th style="width:40%">넣고 싶었던 것</th><th>대신 내린 판단</th></tr>
+    <tr><td>유닛 수 늘리기 (5v5 → 10v10)</td><td>사람이 아니라 <strong>상황</strong>을 늘렸다 — 역할군·특성·예외.
+      유닛을 늘려도 AI가 배우는 건 그대로다.</td></tr>
+    <tr><td>전장 이벤트·적 적응·작전 회의</td><td><strong>껐다.</strong> 인과를 흐리면 “교리가 승리를 만들었다”가 안 보인다.</td></tr>
+    <tr><td>전투 중 실시간 마이크로 지휘</td><td>거부. 그건 그냥 RTS 조종기로의 회귀 — USP를 배신한다.</td></tr>
+    <tr><td>“Thinking…” 가짜 로딩 연출</td><td>거부. 없는 계산을 연기하는 것 = “UI만 AI”.</td></tr>
+    <tr><td>LLM 자기보고 확신도(Intent Confidence)</td><td>거부. 캘리브레이션 안 됨 + 실측 신뢰도를 오염시킨다.</td></tr>
+  </table>
+</section>
+
+<!-- ===== 3. 엔지니어링 원칙 ===== -->
+<section class="pagebreak">
+  <h2><span class="num">03</span>엔지니어링 원칙 — 검증과 정직성</h2>
+  <div class="principle"><b>검증 우선 (Verification-first)</b>
+    <span>AI/LLM이 만든 것은 반드시 검증한다. 회귀 테스트 <strong>30/30</strong>(일반화·조건부 발동·예외 학습·
+      교리 충돌 해소·없는 의도 안 지어내기·폴백의 한계·계보 실재성) + 헤드리스 시뮬레이션(각 30~40회).</span></div>
+  <div class="principle"><b>연출이 아니라 사실 (No AI theater)</b>
+    <span>“AI가 생각하는 것처럼 보이는” 가짜 연출을 거부. Commander 별명·교리 계보·신뢰도는 모두 실제
+      데이터에서 <strong>유도</strong>된 것이다. 지어낸 것은 하나도 없다.</span></div>
+  <div class="principle"><b>정직한 폴백 (Honest fallback)</b>
+    <span>키가 없을 때의 규칙 기반 동작을 LLM인 척 포장하지 않는다. 화면에 추론 백엔드를 항상 표시
+      (<span class="mono">OPENAI · gpt-4o</span> / <span class="mono">LOCAL · 규칙 기반</span>).</span></div>
+
+  <h3>교리는 승패를 가른다 — 밸런스 검증 (명령 없이 각 30회)</h3>
+  <table>
+    <tr><th>사령관의 사고방식</th><th class="c">S1</th><th class="c">S2</th><th class="c">S3</th><th class="c">S4</th></tr>
+    <tr><td>교리 없음</td><td class="c">100%</td><td class="c">100%</td><td class="c no">0%</td><td class="c">100%</td></tr>
+    <tr><td>교리 (예외 없음)</td><td class="c">100%</td><td class="c">100%</td><td class="c">100%</td><td class="c no">0%</td></tr>
+    <tr><td><strong>교리 + 예외 (최종)</strong></td><td class="c ok">100%</td><td class="c ok">100%</td><td class="c ok">100%</td><td class="c ok">100%</td></tr>
+  </table>
+  <p><strong>어떤 불완전한 사고방식도 4판을 모두 이기지 못한다. 학습의 최종 산물만이 모두 이긴다.</strong>
+    교리는 장식이 아니라 승패를 가르는 판단이라는 것을, 밸런스가 강제한다.</p>
+</section>
+
+<!-- ===== 4. 개발 방식 ===== -->
+<section>
+  <h2><span class="num">04</span>개발 방식 — AI-native</h2>
+  <p>제품의 AI(GPT-4o)와 별개로, 이 프로토타입은 <strong>Claude(Claude Code)</strong>와의 협업으로 개발되었다.
+    자연어로 요구를 전달 → 코드로 구현 → 헤드리스 시뮬레이터로 검증하는 루프를 반복했다.
+    여러 관점의 비판(“왜 LLM인가?”, “3분에 이해되는가?”, “기억에 남는가?”)을 설계에 직접 반영했고,
+    그 과정이 곧 제품의 정체성을 벼려냈다.</p>
+  <div class="callout blue"><strong>스택:</strong> 순수 HTML / JavaScript / Canvas (의존성 0) ·
+    Node 내장 fetch 기반 LLM 프록시 · OpenAI GPT-4o (structured outputs) / Anthropic 어댑터 ·
+    localStorage 영속화. <strong>빌드 도구·프레임워크 없음</strong> — 브라우저만으로 실행된다.</div>
+</section>
+
+<!-- ===== 5. 로드맵 ===== -->
+<section class="pagebreak">
+  <h2><span class="num">05</span>로드맵 — 본선에서 증명할 것</h2>
+  <p class="lead">예선에서 <strong>의도적으로 제외</strong>한 것들이 곧 다음 단계의 무기다. 하나의 핵심(교리 학습)을
+    완성했으니, 그 위에 층을 쌓는다.</p>
+  <div class="tier"><div class="tn">본선 ①</div><div class="tc">
+    <b>사령관의 정체성 — Personality &amp; Relationship</b>
+    <p>학습된 교리에서 유도되는 별명을 넘어, 판단 스타일에 성격이 생기고 플레이어와 관계를 맺는다.</p></div></div>
+  <div class="tier"><div class="tn">본선 ②</div><div class="tc">
+    <b>사령관의 공유 — Version &amp; Sharing</b>
+    <p>플레이어마다 다르게 자란 사령관을 저장·공유·대결. “내 사고방식 vs 네 사고방식.”</p></div></div>
+  <div class="tier"><div class="tn">본선 ③</div><div class="tc">
+    <b>집단 지성 — Multi-Agent Debate</b>
+    <p>여러 사령관이 서로 다른 교리를 놓고 토론해 전략을 합의한다.</p></div></div>
+  <div class="tier"><div class="tn">본선 ④</div><div class="tc">
+    <b>기억과 교란 — Long-term Memory &amp; Adversarial</b>
+    <p>전투 히스토리 기반의 장기 기억, 그리고 적이 플레이어의 교리를 역이용·교란하는 방어 메타.</p></div></div>
+  <div class="callout">이 로드맵은 “아이디어”가 아니라 <strong>이미 검증된 핵심(자연어→의도→교리→적용)</strong> 위에
+    쌓이는 확장이다. 그래서 실현 가능하고, 그래서 이 팀은 본선에서 다음을 보여줄 수 있다.</div>
+</section>
+
+<!-- ===== 6. 참고 링크 ===== -->
+<section>
+  <h2><span class="num">06</span>참고 자료</h2>
+  <table>
+    <tr><td style="width:34%"><strong>소스코드 (GitHub)</strong></td><td>github.com/cynkai/doctrine — 의존성 0, MIT</td></tr>
+    <tr><td><strong>회귀 테스트</strong></td><td><span class="mono">node scripts/proof.js</span> — 30/30</td></tr>
+    <tr><td><strong>게임 소개 및 설명 문서</strong></td><td>개요 · 플레이 방법 · 실행 방법 (별도 제출)</td></tr>
+    <tr><td><strong>AI 활용 기술 문서</strong></td><td>왜 LLM인가 · 프롬프트 · 실측 (별도 제출)</td></tr>
+  </table>
+</section>
+
+<div class="final">
+  <b>This project does not use AI to replace the player.<br>
+  It uses AI to remember, generalize, and evolve the player’s strategy.</b>
+</div>
+
+</body>
+</html>
