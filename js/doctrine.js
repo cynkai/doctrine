@@ -371,6 +371,83 @@
       });
   }
 
+  function eligibleDoctrines(doctrines, enemies) {
+    var U = global.CommanderUnits;
+    return (doctrines || []).filter(function (d) {
+      if (d.status !== 'accepted' || !d.action) return false;
+      if (d.condition && d.condition.requiresTrait) {
+        if (!enemies) return false;
+        return U.fieldHasTrait(enemies, d.condition.requiresTrait);
+      }
+      return true;
+    });
+  }
+
+  function normalizedConfidence(d) {
+    var c = confidence(d);
+    return c == null ? 50 : c;
+  }
+
+  function compareDoctrines(a, b) {
+    var sa = a.condition && a.condition.requiresTrait ? 1 : 0;
+    var sb = b.condition && b.condition.requiresTrait ? 1 : 0;
+    if (sa !== sb) return sb - sa;
+    return normalizedConfidence(b) - normalizedConfidence(a);
+  }
+
+  function actionSignature(d) {
+    return [
+      d.action.targetRole || '',
+      d.action.exceptTrait || '',
+      d.action.focusFire ? '1' : '0'
+    ].join('|');
+  }
+
+  function selectDoctrine(doctrines, enemies, resolutions) {
+    var eligible = eligibleDoctrines(doctrines, enemies);
+    if (!eligible.length) return { doctrine: null, conflict: null };
+
+    eligible.sort(compareDoctrines);
+    var legacyWinner = eligible[0];
+    var contenders = eligible.filter(function (d) { return compareDoctrines(d, legacyWinner) === 0; });
+    if (contenders.length < 2) return { doctrine: legacyWinner, conflict: null };
+
+    var firstAction = actionSignature(contenders[0]);
+    var differs = contenders.some(function (d) { return actionSignature(d) !== firstAction; });
+    if (!differs) return { doctrine: legacyWinner, conflict: null };
+
+    var contenderIds = contenders.map(function (d) { return d.id; });
+    var key = contenderIds.slice().sort().join('|');
+    var saved = resolutions && resolutions[key];
+    var resolvedWinner = null;
+    if (saved && saved.winnerId) {
+      resolvedWinner = contenders.filter(function (d) { return d.id === saved.winnerId; })[0] || null;
+    }
+
+    return {
+      doctrine: resolvedWinner || legacyWinner,
+      conflict: {
+        key: key,
+        contenderIds: contenderIds,
+        legacyWinnerId: legacyWinner.id,
+        resolvedWinnerId: resolvedWinner ? resolvedWinner.id : null
+      }
+    };
+  }
+
+  function applyDoctrine(policy, doctrine) {
+    if (!doctrine) return;
+    policy.targetRole = doctrine.action.targetRole;
+    policy.targetExcept = doctrine.action.exceptTrait || null;
+    if (doctrine.action.focusFire) policy.focusFire = true;
+  }
+
+  function applyToDetailed(policy, doctrines, enemies, resolutions) {
+    var result = selectDoctrine(doctrines, enemies, resolutions);
+    applyDoctrine(policy, result.doctrine);
+    return result;
+  }
+
   var useLLM = false;
   var backendLabel = 'LOCAL · 규칙 기반';   // 화면에 정직하게 표시된다. 규칙 기반을 LLM인 척하지 않는다.
 
@@ -416,33 +493,11 @@
      * @returns {object|null} 실제로 발동한 교리 (없으면 null)
      */
     applyTo: function (policy, doctrines, enemies) {
-      var U = global.CommanderUnits;
-      var eligible = (doctrines || []).filter(function (d) {
-        if (d.status !== 'accepted' || !d.action) return false;
-        if (d.condition && d.condition.requiresTrait) {
-          if (!enemies) return false;
-          return U.fieldHasTrait(enemies, d.condition.requiresTrait);   // 조건 불성립 → 후보 제외
-        }
-        return true;
-      });
-      if (!eligible.length) return null;
-
-      eligible.sort(function (a, b) {
-        // ② 구체적인(조건이 맞는) 교리 우선
-        var sa = a.condition && a.condition.requiresTrait ? 1 : 0;
-        var sb = b.condition && b.condition.requiresTrait ? 1 : 0;
-        if (sa !== sb) return sb - sa;
-        // ③ 신뢰도 우선 (아직 검증 전인 교리는 중립값 50으로 본다)
-        var ca = confidence(a), cb = confidence(b);
-        return (cb == null ? 50 : cb) - (ca == null ? 50 : ca);
-      });
-
-      var top = eligible[0];
-      policy.targetRole = top.action.targetRole;
-      policy.targetExcept = top.action.exceptTrait || null;
-      if (top.action.focusFire) policy.focusFire = true;
-      return top;
+      return applyToDetailed(policy, doctrines, enemies, null).doctrine;
     },
+
+    /** v1 선택 결과에 Shadow Conflict 메타데이터를 더한 신규 API. */
+    applyToDetailed: applyToDetailed,
 
     backend: function () { return useLLM ? 'llm' : 'local'; },
     backendLabel: function () { return backendLabel; },

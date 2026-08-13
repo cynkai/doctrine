@@ -360,6 +360,21 @@ body::after {
 .ds-conf.mid { color: var(--amber); }
 .ds-conf.bad { color: var(--enemy); }
 
+.doctrine-conflict { width: 100%; }
+.dcf-title { font-size: 16px; font-weight: 800; color: var(--amber); }
+.dcf-contenders { margin-top: 3px; color: var(--text); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.dcf-current { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; padding: 7px 10px;
+  border: 1px solid var(--line-hi); border-radius: 8px; background: var(--panel-hi); }
+.dcf-current span, .dcf-label { font-family: var(--mono); font-size: 9px; letter-spacing: 1.2px; color: var(--muted); }
+.dcf-current b { margin-left: auto; color: var(--amber); font-size: 12px; text-align: right; }
+.dcf-label { margin-top: 10px; }
+.dcf-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.dcf-btn { flex: 1 1 150px; cursor: pointer; border-radius: 8px; padding: 8px 10px; font-size: 12px;
+  font-weight: 700; color: var(--text); background: var(--panel-hi); border: 1px solid var(--line-hi); }
+.dcf-btn:hover, .dcf-btn:focus-visible { border-color: var(--amber); outline: none; }
+.dcf-btn.selected { color: #06101f; background: linear-gradient(180deg, #ffcb6e, #ff9e28); border-color: transparent; }
+.dcf-status { min-height: 18px; margin-top: 7px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+
 /* 예외 학습 — 교리가 틀린 판. 색으로 "경고"임을 알린다 */
 .dprop.exception { border-color: var(--enemy); }
 .dprop.exception .dp-sec.new .dp-h { color: var(--enemy); }

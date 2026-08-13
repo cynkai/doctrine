@@ -433,10 +433,25 @@ const server = http.createServer(function (req, res) {
   });
 });
 
-server.listen(PORT, function () {
-  console.log('지휘관 · COMMANDER  →  http://localhost:' + PORT);
-  console.log(HAS_KEY
-    ? '의도 추론 백엔드: ' + PROVIDER.toUpperCase() + ' (' + MODEL + ') 연동됨 ✓'
-    : '의도 추론 백엔드: LOCAL (규칙 기반 폴백)\n'
-      + '  → 실제 LLM 추론을 쓰려면: OPENAI_API_KEY=sk-... node server/proxy.js');
-});
+if (require.main === module) {
+  server.listen(PORT, function () {
+    console.log('지휘관 · COMMANDER  →  http://localhost:' + PORT);
+    console.log(HAS_KEY
+      ? '의도 추론 백엔드: ' + PROVIDER.toUpperCase() + ' (' + MODEL + ') 연동됨 ✓'
+      : '의도 추론 백엔드: LOCAL (규칙 기반 폴백)\n'
+        + '  → 실제 LLM 추론을 쓰려면: OPENAI_API_KEY=sk-... node server/proxy.js');
+  });
+}
+
+module.exports = {
+  health: function () {
+    return {
+      ok: HAS_KEY,
+      provider: HAS_KEY ? PROVIDER : null,
+      model: HAS_KEY ? MODEL : null,
+      backend: HAS_KEY ? PROVIDER : 'local'
+    };
+  },
+  callIntent: callIntent,
+  callDoctrine: callDoctrine
+};

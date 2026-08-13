@@ -141,7 +141,11 @@
     var enemy = spawnTeam('enemy', enemyPolicy, stage.comp, stage.statMul);
     // ★ 학습된 교리를 AI의 기본 사고방식으로 주입 (명령이 없어도 스스로 적용된다).
     //   전장(enemy)을 넘겨서 조건(condition)을 판정한다 — 증폭형이 없으면 발동하지 않는다.
-    var fired = window.Doctrine.applyTo(effPolicy, doctrines, enemy);
+    var doctrineResult = window.Doctrine.applyToDetailed(
+      effPolicy, doctrines, enemy, doctrineConflictMemory.resolutions
+    );
+    var fired = doctrineResult.doctrine;
+    var conflict = doctrineResult.conflict;
     // 이번 전투의 명시 명령이 교리보다 우선 (해석기가 대상을 읽어냈을 때).
     // ★ 명령이 교리를 덮어쓰면, 그 전투를 실제로 이끈 것은 명령이지 교리가 아니다.
     //   그래서 firedDoctrine을 비운다 — 안 그러면 Replay가 "안 쓰인 교리"를 보여준다(거짓).
@@ -150,6 +154,7 @@
       effPolicy.targetRole = intent.set.targetRole;
       effPolicy.targetExcept = intent.set.targetExcept || null;
       fired = null;
+      conflict = null;
     }
     var player = spawnTeam('player', effPolicy, PLAYER_COMP, 1);
     state = {
@@ -163,6 +168,7 @@
       t: 0, maxT: stage.boss ? 90 : 70, over: false, winner: null,
       log: [], newKills: 0, stars: 0,
       firedDoctrine: fired,   // ★ 이번 전투에 실제로 발동한 교리 (신뢰도 채점 대상)
+      doctrineConflict: conflict,
       backfireTraits: [],     // ★ 교리를 적용했다가 역효과를 본 특성 (예외 학습의 근거)
       killedRoles: [],        // ★ 교리 추론의 근거: 제거된 적 역할군 순서
       // 전장 이벤트
@@ -1396,7 +1402,17 @@
 
   // ===== ★ Doctrine 메모리 — AI 사령관의 영구적 사고방식 ======================
   var doctrines = (function () { try { return JSON.parse(localStorage.getItem('commander_doctrines') || '[]'); } catch (e) { return []; } })();
+  var doctrineConflictMemory = (function () {
+    try {
+      var parsed = JSON.parse(localStorage.getItem('commander_doctrine_conflicts_v1') || 'null');
+      if (parsed && parsed.version === 1 && parsed.resolutions && typeof parsed.resolutions === 'object') return parsed;
+    } catch (e) {}
+    return { version: 1, resolutions: {} };
+  })();
   function saveDoctrines() { try { localStorage.setItem('commander_doctrines', JSON.stringify(doctrines)); } catch (e) {} }
+  function saveDoctrineConflictMemory() {
+    try { localStorage.setItem('commander_doctrine_conflicts_v1', JSON.stringify(doctrineConflictMemory)); } catch (e) {}
+  }
   function acceptedDoctrines() { return doctrines.filter(function (d) { return d.status === 'accepted'; }); }
 
   /**
@@ -1468,7 +1484,11 @@
     var c = $('doctrineCount'); if (c) c.textContent = acc.length + '개 교리';
   }
   function clearDoctrine() {
-    doctrines = []; saveDoctrines(); renderDoctrineMem();
+    doctrines = [];
+    doctrineConflictMemory = { version: 1, resolutions: {} };
+    saveDoctrines();
+    try { localStorage.removeItem('commander_doctrine_conflicts_v1'); } catch (e) {}
+    renderDoctrineMem();
     showToast('사령관의 교리를 모두 지웠습니다', 'warn');
   }
 
@@ -1668,9 +1688,66 @@
     return s + '.';
   }
 
+  function doctrineConflictHTML() {
+    var conflict = state && state.doctrineConflict;
+    if (!conflict) return '';
+    var contenders = conflict.contenderIds.map(function (id) {
+      return doctrines.filter(function (d) { return d.id === id; })[0] || { id: id, name: id };
+    });
+    var selectedId = state.firedDoctrine ? state.firedDoctrine.id
+      : (conflict.resolvedWinnerId || conflict.legacyWinnerId);
+    var selected = contenders.filter(function (d) { return d.id === selectedId; })[0];
+    var buttons = contenders.map(function (d) {
+      var chosen = conflict.resolvedWinnerId === d.id;
+      return '<button type="button" class="dcf-btn' + (chosen ? ' selected' : '') + '"' +
+        ' data-conflict-winner="' + encodeURIComponent(d.id) + '" aria-pressed="' + chosen + '">' +
+        escapeHtml(d.name) + '</button>';
+    }).join('');
+    var note = conflict.resolvedWinnerId
+      ? '저장된 우선순위를 이번 전투에 적용했습니다.'
+      : '선택은 다음 동일 충돌부터 적용됩니다.';
+    return '<div class="dp-sec doctrine-conflict">' +
+      '<div class="dp-h">DOCTRINE CONFLICT</div>' +
+      '<div class="dcf-title">교리 충돌</div>' +
+      '<div class="dcf-contenders">' + contenders.map(function (d) { return escapeHtml(d.name); }).join(' / ') + '</div>' +
+      '<div class="dcf-current"><span>이번 전투</span><b>' + escapeHtml(selected ? selected.name : selectedId) + '</b></div>' +
+      '<div class="dcf-label">다음부터</div>' +
+      '<div class="dcf-actions">' + buttons + '</div>' +
+      '<div class="dcf-status" aria-live="polite">' + note + '</div>' +
+    '</div>';
+  }
+
+  function bindDoctrineConflictActions() {
+    var dv = $('doctrineProposal');
+    var conflict = state && state.doctrineConflict;
+    if (!dv || !conflict) return;
+    Array.prototype.forEach.call(dv.querySelectorAll('[data-conflict-winner]'), function (button) {
+      button.addEventListener('click', function () {
+        var winnerId = decodeURIComponent(button.getAttribute('data-conflict-winner'));
+        if (conflict.contenderIds.indexOf(winnerId) === -1) return;
+        doctrineConflictMemory.resolutions[conflict.key] = { winnerId: winnerId };
+        saveDoctrineConflictMemory();
+        Array.prototype.forEach.call(dv.querySelectorAll('[data-conflict-winner]'), function (choice) {
+          var selected = decodeURIComponent(choice.getAttribute('data-conflict-winner')) === winnerId;
+          choice.classList.toggle('selected', selected);
+          choice.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        });
+        var winner = doctrines.filter(function (d) { return d.id === winnerId; })[0];
+        var status = dv.querySelector('.dcf-status');
+        if (status) status.textContent = '다음 동일 충돌부터 ' + (winner ? winner.name : winnerId) + ' 교리를 우선합니다.';
+      });
+    });
+  }
+
   function renderProposal(res) {
     var dv = $('doctrineProposal'); if (!dv) return;
-    if (!res) { dv.className = 'dprop none'; dv.innerHTML = '<div class="dp-wait">분석에 실패했습니다.</div>'; return; }
+    var conflict = doctrineConflictHTML();
+    if (!res) {
+      dv.className = 'dprop none';
+      dv.innerHTML = conflict + '<div class="dp-wait">분석에 실패했습니다.</div>';
+      bindDoctrineConflictActions();
+      return;
+    }
 
     var head = '<div class="dp-sec"><div class="dp-h">ANALYSIS' +
       '<span class="dp-backend">' + escapeHtml(window.Doctrine.backendLabel()) + '</span>' +
@@ -1680,7 +1757,8 @@
     if (res.kind === 'report' || !res.doctrine) {
       pendingDoctrine = null;
       dv.className = 'dprop none';
-      dv.innerHTML = head + scoreHTML(res.scores);
+      dv.innerHTML = conflict + head + scoreHTML(res.scores);
+      bindDoctrineConflictActions();
       return;
     }
 
@@ -1689,7 +1767,7 @@
     var isExc = res.kind === 'exception';
     dv.className = 'dprop' + (isExc ? ' exception' : '');
     dv.innerHTML =
-      head + scoreHTML(res.scores) +
+      conflict + head + scoreHTML(res.scores) +
       '<div class="dp-sec new"><div class="dp-h">' + (isExc ? '⚠ EXCEPTION LEARNED' : 'NEW DOCTRINE') + '</div>' +
         '<div class="dp-name">' + escapeHtml(d.name) + '</div>' +
         '<div class="dp-rule">' + escapeHtml(d.rule) + '</div>' +
@@ -1705,6 +1783,7 @@
     Array.prototype.forEach.call(dv.querySelectorAll('[data-d]'), function (b) {
       b.addEventListener('click', function () { doctrineAction(b.getAttribute('data-d')); });
     });
+    bindDoctrineConflictActions();
   }
 
   function doctrineAction(act) {
