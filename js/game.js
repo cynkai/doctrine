@@ -1942,7 +1942,7 @@
     canvas = $('arena'); ctx = canvas.getContext('2d');
     resizeCanvas();
     bind(); setSpeed(2); updateHUD(); renderDoctrineMem();
-    // 프록시가 살아있으면 실제 Claude로 승격 (없으면 로컬 규칙 엔진으로 동작)
+    // 프록시에 키가 있으면 LLM으로 승격 (없으면 로컬 규칙 엔진으로 동작)
     if (window.Doctrine && window.Doctrine.probe) window.Doctrine.probe();
     if (FEATURES.warCouncil && window.Advisor && window.Advisor.probe) window.Advisor.probe();
     requestAnimationFrame(loop);
