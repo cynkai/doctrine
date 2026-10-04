@@ -12,10 +12,11 @@ jobs:
       matrix:
         node: [20, 22]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
       - run: node scripts/proof.js
       - run: node scripts/conflict-proof.js
       - run: node scripts/guard-proof.js
+      - run: node scripts/intent-proof.js

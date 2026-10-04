@@ -21,6 +21,7 @@
       retreatHpPct: 0.0,        // 이 체력 비율 아래면 후퇴 (0 = 후퇴 안 함)
       targetRole: null,         // ★ Doctrine의 실행부: frontline|ranged|support|elite (역할군 우선)
       targetExcept: null,       // ★ 예외 교리의 실행부: 이 특성(trait)을 가진 적은 우선 대상에서 제외
+      targetAvoid: null,        // "방패 든 애는 무시해" — 이 역할군은 다른 적이 남아 있는 동안 치지 않는다
       targetPriority: 'nearest',// nearest | weakest | strongest | healer | archer | warrior
       focusFire: false,         // 아군이 한 대상에 화력 집중
       rescue: false,            // 포위된 아군을 구하러 이동
@@ -108,7 +109,7 @@
   //   정책을 재구성하는데, 그때 교리·해석이 심어둔 targetRole이 null로 덮여 조용히 증발한다.
   function applyFragment(p, set) {
     ['focusFire', 'kite', 'rescue', 'avoidHazards', 'regroup'].forEach(function (k) { if (set[k]) p[k] = true; });
-    ['retreatHpPct', 'targetPriority', 'aggression', 'protect', 'targetRole', 'targetExcept']
+    ['retreatHpPct', 'targetPriority', 'aggression', 'protect', 'targetRole', 'targetExcept', 'targetAvoid']
       .forEach(function (k) { if (set[k] !== undefined) p[k] = set[k]; });
   }
 

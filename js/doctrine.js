@@ -344,6 +344,13 @@
     };
   }
 
+  /** 0~1 비율. LLM이 퍼센트(60)로 내면 0.6으로 읽는다 — 1로 잘리면 체력이 가득해도 후퇴한다. */
+  function fraction(v) {
+    if (typeof v !== 'number' || !isFinite(v)) return 0;
+    if (v > 1) v = v / 100;
+    return Math.max(0, Math.min(1, v));
+  }
+
   function interpretLLM(command, ctx) {
     return fetch('/api/intent', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -354,21 +361,25 @@
         traits: Object.keys(TRAIT_LABEL).map(function (t) { return { key: t, label: TRAIT_LABEL[t] }; })
       })
     }).then(function (r) { if (!r.ok) throw new Error('proxy ' + r.status); return r.json(); })
-      .then(function (res) {
-        if (!res || !res.understood) return { understood: false, set: {}, rules: [], why: '', source: 'llm' };
-        var set = {};
-        if (res.targetRole && ROLE_LABEL[res.targetRole]) set.targetRole = res.targetRole;
-        if (res.exceptTrait && TRAIT_LABEL[res.exceptTrait]) set.targetExcept = res.exceptTrait;
-        if (res.focusFire) set.focusFire = true;
-        if (res.kite) set.kite = true;
-        if (res.aggression != null) set.aggression = Math.max(0, Math.min(1, res.aggression));
-        if (res.retreatHpPct != null) set.retreatHpPct = Math.max(0, Math.min(1, res.retreatHpPct));
-        return {
-          understood: true, set: set,
-          rules: (res.rules || []).slice(0, 3),
-          why: res.why || '', source: 'llm'
-        };
-      });
+      .then(intentFromLLM);
+  }
+
+  /** /api/intent 응답 → 게임 정책 조각. 게임이 모르는 값은 버리고, 비율은 0~1로 맞춘다. */
+  function intentFromLLM(res) {
+    if (!res || !res.understood) return { understood: false, set: {}, rules: [], why: '', source: 'llm' };
+    var set = {};
+    if (res.targetRole && ROLE_LABEL[res.targetRole]) set.targetRole = res.targetRole;
+    if (res.exceptTrait && TRAIT_LABEL[res.exceptTrait]) set.targetExcept = res.exceptTrait;
+    if (res.avoidRole && ROLE_LABEL[res.avoidRole] && res.avoidRole !== set.targetRole) set.targetAvoid = res.avoidRole;
+    if (res.focusFire) set.focusFire = true;
+    if (res.kite) set.kite = true;
+    if (res.aggression != null) set.aggression = fraction(res.aggression);
+    if (res.retreatHpPct != null) set.retreatHpPct = fraction(res.retreatHpPct);
+    return {
+      understood: true, set: set,
+      rules: (res.rules || []).slice(0, 3),
+      why: res.why || '', source: 'llm'
+    };
   }
 
   function eligibleDoctrines(doctrines, enemies) {
@@ -455,6 +466,7 @@
     ROLE_LABEL: ROLE_LABEL,
     TRAIT_LABEL: TRAIT_LABEL,
     confidence: confidence,
+    intentFromLLM: intentFromLLM,
 
     /** 명령문이 가리키는 역할군 (이번 전투의 명시 명령은 교리보다 우선) */
     roleOfCommand: function (text) { var s = matchIntent(text); return s ? s.role : null; },
