@@ -1,4 +1,14 @@
 import proxy from './proxy.js';
+import guard from './guard.js';
+
+function clientIp(request) {
+  const fwd = request.headers.get('x-forwarded-for') || '';
+  return fwd.split(',')[0].trim() || request.headers.get('x-real-ip') || 'unknown';
+}
+
+function text(body, status) {
+  return new Response(body, { status, headers: { 'content-type': 'text/plain' } });
+}
 
 function methodNotAllowed(allowed) {
   return new Response('method not allowed', {
@@ -23,14 +33,16 @@ function llmHandler(name, call) {
       });
     }
 
+    if (!guard.allow(clientIp(request))) return text('rate limited', 429);
+
+    const raw = await request.text();
+    if (raw.length > guard.MAX_BODY) return text('too large', 413);
+
     let body;
     try {
-      body = await request.json();
+      body = JSON.parse(raw || '{}');
     } catch (err) {
-      return new Response('bad json', {
-        status: 400,
-        headers: { 'content-type': 'text/plain' }
-      });
+      return text('bad json', 400);
     }
 
     try {

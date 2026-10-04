@@ -19,6 +19,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const guard = require('./guard');
 
 const PORT = process.env.PORT || 8731;
 const ROOT = path.join(__dirname, '..');
@@ -36,7 +37,7 @@ const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
 const PROVIDER = process.env.COMMANDER_PROVIDER || (OPENAI_KEY ? 'openai' : ANTHROPIC_KEY ? 'anthropic' : '');
 const HAS_KEY = PROVIDER === 'openai' ? !!OPENAI_KEY : PROVIDER === 'anthropic' ? !!ANTHROPIC_KEY : false;
 const MODEL = process.env.COMMANDER_MODEL ||
-  (PROVIDER === 'openai' ? 'gpt-4o' : 'claude-opus-4-8');
+  (PROVIDER === 'openai' ? 'gpt-5.4-mini' : 'claude-opus-4-8');
 
 const API_KEY = ANTHROPIC_KEY;   // (레거시: /api/advise 작전회의용 — 예선 스코프에서 OFF)
 
@@ -169,7 +170,8 @@ function intentPrompt(ctx) {
   ].join('\n');
 }
 
-async function callIntent(ctx) {
+async function callIntent(body) {
+  const ctx = guard.intentCtx(body);
   const roleKeys = (ctx.roles || []).map(function (r) { return r.key; });
   const traitKeys = (ctx.traits || []).map(function (t) { return t.key; });
   if (PROVIDER === 'openai') {
@@ -177,7 +179,7 @@ async function callIntent(ctx) {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + OPENAI_KEY },
       body: JSON.stringify({
-        model: MODEL,
+        model: MODEL, max_completion_tokens: guard.MAX_OUTPUT_TOKENS,
         messages: [{ role: 'system', content: INTENT_SYSTEM }, { role: 'user', content: intentPrompt(ctx) }],
         response_format: { type: 'json_schema',
           json_schema: { name: 'intent', strict: true, schema: intentSchema(roleKeys, traitKeys) } }
@@ -313,7 +315,7 @@ async function callDoctrineOpenAI(ctx) {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + OPENAI_KEY },
     body: JSON.stringify({
-      model: MODEL,
+      model: MODEL, max_completion_tokens: guard.MAX_OUTPUT_TOKENS,
       messages: [
         { role: 'system', content: DOCTRINE_SYSTEM },
         { role: 'user', content: doctrinePrompt(ctx) }
@@ -354,7 +356,8 @@ async function callDoctrineAnthropic(ctx) {
 }
 
 /** 프로바이더 디스패치. 프런트는 어느 쪽이 답했는지 알 필요가 없다. */
-function callDoctrine(ctx) {
+function callDoctrine(body) {
+  const ctx = guard.doctrineCtx(body);
   if (PROVIDER === 'openai') return callDoctrineOpenAI(ctx);
   if (PROVIDER === 'anthropic') return callDoctrineAnthropic(ctx);
   return Promise.reject(new Error('no provider'));
@@ -362,8 +365,12 @@ function callDoctrine(ctx) {
 
 function readJson(req, res, cb) {
   let body = '';
-  req.on('data', function (c) { body += c; if (body.length > 1e6) req.destroy(); });
+  req.on('data', function (c) {
+    body += c;
+    if (body.length > guard.MAX_BODY) { res.writeHead(413); res.end('too large'); req.destroy(); }
+  });
   req.on('end', function () {
+    if (res.headersSent) return;
     let ctx; try { ctx = JSON.parse(body || '{}'); } catch (e) { res.writeHead(400); res.end('bad json'); return; }
     cb(ctx);
   });
@@ -383,6 +390,7 @@ const server = http.createServer(function (req, res) {
   }
   if (req.url === '/api/intent' && req.method === 'POST') {
     if (!HAS_KEY) { res.writeHead(503); res.end('no key'); return; }
+    if (!guard.allow(req.socket.remoteAddress)) { res.writeHead(429); res.end('rate limited'); return; }
     readJson(req, res, function (ctx) {
       callIntent(ctx).then(function (out) {
         res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(out));
@@ -395,6 +403,7 @@ const server = http.createServer(function (req, res) {
   }
   if (req.url === '/api/doctrine' && req.method === 'POST') {
     if (!HAS_KEY) { res.writeHead(503); res.end('no key'); return; }
+    if (!guard.allow(req.socket.remoteAddress)) { res.writeHead(429); res.end('rate limited'); return; }
     readJson(req, res, function (ctx) {
       callDoctrine(ctx).then(function (out) {
         res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(out));
