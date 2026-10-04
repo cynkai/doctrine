@@ -137,6 +137,7 @@
    */
   function chooseTarget(self, enemies, policy, teamFocus, reach) {
     if (!enemies.length) return null;
+    enemies = withoutRole(enemies, policy.targetAvoid);
     reach = reach || 1e9;
     var nearest = minBy(enemies, function (e) { return dist(self, e); });
 
@@ -181,10 +182,21 @@
     return p.length ? p : null;
   }
 
+  /**
+   * "무시하고 지나가" — 피할 역할군을 뺀 적들. 그 역할군만 남았으면 그대로 싸운다
+   * (피하라는 말이 "지라"는 뜻은 아니다).
+   */
+  function withoutRole(enemies, role) {
+    if (!role) return enemies;
+    var rest = enemies.filter(function (e) { return e.arch.role !== role; });
+    return rest.length ? rest : enemies;
+  }
+
   /** 팀 공용 화력집중 타겟: "교전 중인 적 중 최저 HP"를 몰아친다 (역할군/우선순위 우대) */
   function computeTeamFocus(teamUnits, enemies, policy) {
     var living = alive(teamUnits);
     if (!living.length || !enemies.length) return null;
+    enemies = withoutRole(enemies, policy.targetAvoid);
     var engaged = enemies.filter(function (e) {
       return living.some(function (a) { return dist(a, e) < a.arch.attackRange + 40; });
     });
@@ -227,7 +239,7 @@
   global.CommanderUnits = {
     ARCHETYPES: ARCHETYPES, ROLES: ROLES, TRAITS: TRAITS,
     hasTrait: hasTrait, fieldHasTrait: fieldHasTrait,
-    buffMul: buffMul, rolePool: rolePool,
+    buffMul: buffMul, rolePool: rolePool, withoutRole: withoutRole,
     dist: dist, alive: alive, canAttack: canAttack,
     chooseTarget: chooseTarget, computeTeamFocus: computeTeamFocus,
     isSurrounded: isSurrounded, minBy: minBy, maxBy: maxBy

@@ -156,6 +156,13 @@
       fired = null;
       conflict = null;
     }
+    // "방패 든 애는 무시해" — 명령이 피하라는 역할군을 교리가 노리고 있으면 명령이 이긴다.
+    if (effPolicy.targetAvoid && effPolicy.targetRole === effPolicy.targetAvoid) {
+      effPolicy.targetRole = null;
+      effPolicy.targetExcept = null;
+      fired = null;
+      conflict = null;
+    }
     var player = spawnTeam('player', effPolicy, PLAYER_COMP, 1);
     state = {
       player: player, enemy: enemy,
@@ -188,6 +195,7 @@
     //   newBattle과 같은 우선순위를 유지한다: 교리를 깔고, 명시 명령이 있으면 그것이 이긴다.
     var hasCmdRole = state.stack.some(function (f) { return f.set && f.set.targetRole; });
     if (!hasCmdRole) window.Doctrine.applyTo(np, doctrines, state.enemy);
+    if (np.targetAvoid && np.targetRole === np.targetAvoid) { np.targetRole = null; np.targetExcept = null; }
     for (var k in np) state.effPolicy[k] = np[k];   // 유닛들이 참조하는 정책을 제자리 갱신
     return true;
   }

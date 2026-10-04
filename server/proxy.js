@@ -127,11 +127,15 @@ const INTENT_SYSTEM = [
   '  "뒤에 깃발 든 애 거슬려"       → 버퍼(지원형) → targetRole="support"',
   '  "몰아쳐"                      → focusFire=true, aggression 높게',
   '  "무리하지 마"                 → aggression 낮게, retreatHpPct 설정',
+  '  "방패 든 애는 무시하고 지나가" → 그 전열형은 치지 않는다 → avoidRole="frontline", targetRole=null',
   '표면의 단어가 아니라 **의도**를 읽어라.',
   '',
   '규칙:',
   '1) targetRole은 주어진 role 목록 중 하나이거나 null이다. 지어내지 마라.',
   '2) 명령에 대상 지시가 전혀 없으면 targetRole=null로 두고, 다른 필드만 채워라.',
+  '   "무시해/건드리지 마/지나가"처럼 **피하라는** 대상은 targetRole이 아니라 avoidRole이다.',
+  '   avoidRole과 targetRole은 같은 역할군일 수 없다.',
+  '2-1) aggression과 retreatHpPct는 0~1 사이 비율이다. 체력 60%면 0.6 (60이 아니다).',
   '3) 전혀 전술 명령이 아니면(예: "안녕", "ㅋㅋ") understood=false.',
   '4) rules[]에는 "AI가 이렇게 이해했다"를 플레이어가 읽을 짧은 한국어 문구로 1~3개 넣어라.',
   '   예) ["적 지원형을 최우선 제거", "화력 집중"]  ← 8~20자, 존댓말 불필요(라벨이므로)',
@@ -146,6 +150,7 @@ function intentSchema(roleKeys, traitKeys) {
       understood: { type: 'boolean' },
       targetRole: { type: ['string', 'null'], enum: roleKeys.concat([null]) },
       exceptTrait: { type: ['string', 'null'], enum: traitKeys.concat([null]) },
+      avoidRole: { type: ['string', 'null'], enum: roleKeys.concat([null]) },
       focusFire: { type: 'boolean' },
       kite: { type: 'boolean' },
       aggression: { type: ['number', 'null'] },      // 0..1
@@ -153,7 +158,7 @@ function intentSchema(roleKeys, traitKeys) {
       why: { type: 'string' },
       rules: { type: 'array', items: { type: 'string' } }
     },
-    required: ['understood', 'targetRole', 'exceptTrait', 'focusFire', 'kite',
+    required: ['understood', 'targetRole', 'exceptTrait', 'avoidRole', 'focusFire', 'kite',
       'aggression', 'retreatHpPct', 'why', 'rules']
   };
 }
@@ -240,6 +245,7 @@ const DOCTRINE_SYSTEM = [
   '   (전사가 앞줄에 있으니 전사가 먼저 죽는다.) 그것을 "진형 붕괴 의도"로 해석하면 안 된다.',
   '   → 이 경우 반드시 role=null. 의도는 오직 **명령**에서 추론하고, 제거 순서는 근거 보강에만 써라.',
   '6) 새로 배울 것이 없거나 기존 교리와 완전히 중복이면 role을 null로 하라.',
+  '   명령이 어떤 역할군을 **피하라는** 뜻("무시하고 지나가")이면 그 역할군을 role로 삼지 마라.',
   '7) reason에는 "무엇을 보고 그렇게 판단했는지"를 근거로 써라(명령 + 실제 제거 순서 + 승패).',
   '',
   '★ 출력 형식 (게임 화면에 그대로 렌더링되므로 반드시 지켜라):',
